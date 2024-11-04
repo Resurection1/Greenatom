@@ -13,6 +13,8 @@
 - Django
 - JavaScript
 - Bootstrap
+- Nginx
+- Gunicorn
 
 ## Установка и запуск проекта
 
