@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Chat
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <textarea id="chat-log" cols="100" rows="20" readonly></textarea><br>
+
+    <form id="message-form" method="POST" action="{% url 'api:index' %}">
+        {% csrf_token %}
+        <input id="chat-message-input" type="text" name="message" size="100" placeholder="Type your message..." required><br>
+        <input type="hidden" name="recipient" id="recipient" value="{{ selected_friend }}">
+        <input type="submit" value="Send">
+    </form>
+
+    <form method="POST" action="{% url 'api:add_friend' %}">
+        {% csrf_token %}
+        <div>
+            <label for="friend-username">Add Friend by Username:</label>
+            <input id="friend-username" type="text" name="friend_username" required>
+            <input type="submit" value="Add Friend">
+        </div>
+    </form>
+
+    <div>
+        <label for="friend-list">Select Friend:</label>
+        <select id="friend-list" onchange="updateChatHistory(this.value); setFriendCookie(this.value);">
+            <option value="">--Select Friend--</option>
+            {% for friend in user.friends.all %}
+                <option value="{{ friend.username }}">{{ friend.username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <script>
+        function setFriendCookie(friendUsername) {
+            if (friendUsername) {
+                document.cookie = "selectedFriend=" + friendUsername + "; path=/; max-age=31536000";
+            }
+        }
+
+        function getCookie(name) {
+            let cookieArr = document.cookie.split(";");
+            for (let i = 0; i < cookieArr.length; i++) {
+                let cookiePair = cookieArr[i].trim().split("=");
+                if (cookiePair[0] === name) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        function updateChatHistory(selectedFriend) {
+            document.getElementById('recipient').value = selectedFriend;
+            if (selectedFriend) {
+                fetch(`/api/messages/${selectedFriend}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const chatLog = document.getElementById('chat-log');
+                        chatLog.value = '';
+                        data.messages.forEach(msg => {
+                            chatLog.value += `${msg.sender}: ${msg.text}\n`;
+                        });
+                    })
+                    .catch(error => console.error('Error loading messages:', error));
+            } else {
+                document.getElementById('chat-log').value = '';
+            }
+        }
+
+        function setSelectedFriend() {
+            const selectedFriend = getCookie("selectedFriend");
+            if (selectedFriend) {
+                const friendList = document.getElementById("friend-list");
+                friendList.value = selectedFriend;
+                updateChatHistory(selectedFriend);
+            }
+        }
+        document.getElementById('message-form').onsubmit = function() {
+            setTimeout(function() {
+                window.location.reload();
+            }, 50);
+        };
+        window.onload = setSelectedFriend;
+    </script>
+{% endif %}
+{% endblock %}
