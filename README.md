@@ -62,5 +62,24 @@ winpty docker exec -it greenatom-backend-1 python manage.py createsuperuser
 docker exec greenatom-backend-1 python manage.py populate_db
 ```
 
+## Примеры запросов
+Регистрация
+```
+http://127.0.0.1:8000/auth/registration/
+```
+Авторизация
+```
+http://127.0.0.1:8000/auth/login/
+```
+Админ панель
+```
+http://127.0.0.1:8000/admin/
+```
+Основное поле после авторизщации
+```
+http://127.0.0.1:8000/
+```
+
+
 ### Автор
 [Podzorov Mihail] - https://github.com/Resurection1
