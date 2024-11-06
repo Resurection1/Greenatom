@@ -35,7 +35,7 @@ DATABASES=postgresql
 
 **Клонировать репозиторий:**
 ```
-https://github.com/Resurection1/Greenatom.git
+git clone https://github.com/Resurection1/Greenatom.git
 ```
 
 
